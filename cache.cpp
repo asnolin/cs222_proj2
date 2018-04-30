@@ -1,8 +1,13 @@
 /* CS222 Cache Simulation Project
    written by Andrew Nolin 2018/04/25
    
-   compile with: g++ cache.cpp -std=gnu++11
+   compile with: g++ cache.cpp -o cache -std=gnu++11
 
+TODO:
+crawler:needs to read trace and config files in the stuff directory
+Mem: needs to provide all address aka, all requests must be hits
+cacheLevel: needs mapping type(direct 2 4 8), variable size, variable block size, determine hit or miss
+cache: needs to record hits/misses, handle transfer of blocks
 */
 
 
@@ -15,20 +20,25 @@
 using namespace std;
 
 
-
 //dummy main memory class
 //this will be used to provide dummy variables to the highest level of cache
 class Mem{
-private://fields
+  //fields
+private:
   int size;
   vector <int > address;
 
 public:
 
-  //constructor
+  Mem(){
+    size = 100;
+  }
+  Mem(int inSize){
+    size = inSize;
+    populate();
+  }
 
   //getters
-
   int getSize() {
     return size;
   }
@@ -36,6 +46,8 @@ public:
   int getAddress(int i){
     return address[i];
   }
+
+
   //setters
 
   //methods
@@ -55,6 +67,7 @@ class CacheLevel{
 private: //fields
   int level; //size of the cache
   int size; //size of cache in bytes
+  enum mapping {associative, direct, two, four, eight};
   enum type {instr, data, unified};
 
   struct block{
@@ -101,6 +114,21 @@ class Cache{
 };
 
 
+//crawls through directory to read config and trace files
+class Crawler{
+
+private:
+  string dir = "stuff/";
+  string config = "config/";
+  string trace = "trace/";
+public:
+
+  Crawler(){}
+
+  void assign(&CacheLevel inLevel){
+
+  }
+};
 
 
 
