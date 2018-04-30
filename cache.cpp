@@ -12,7 +12,6 @@
 #include<fstream>
 #include<cstdlib>
 #include<vector>
-
 using namespace std;
 
 
@@ -22,7 +21,7 @@ using namespace std;
 class Mem{
 private://fields
   int size;
-  vector <int> address;
+  vector <int > address;
 
 public:
 
@@ -40,12 +39,17 @@ public:
   //setters
 
   //methods
+  void populate(){
+    for(int i = 0; i < size; ++i){
+      address[i] = rand()%size+1;
+    }
+  }
 };
 
 
 
 //represents one level of cache
-//has 2 ints, a enum, and a struct that can be 
+//has 2 ints, a enum, and a struct that represents a block
 class CacheLevel{
  
 private: //fields
@@ -102,6 +106,9 @@ class Cache{
 
 //main
 int main(int argc, char *argv[]) {
-
+  //srand(1);
+  while(3==3){
+    cout << "hello world" << endl;
+  }
   return 0;
 }
