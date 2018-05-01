@@ -125,7 +125,7 @@ public:
 
   Crawler(){}
 
-  void assign(&CacheLevel inLevel){
+  void assign(CacheLevel &inLevel){
 
   }
 };
@@ -134,9 +134,7 @@ public:
 
 //main
 int main(int argc, char *argv[]) {
-  //srand(1);
-  while(3==3){
-    cout << "hello world" << endl;
-  }
+  srand(1);
+
   return 0;
 }
