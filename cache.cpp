@@ -30,48 +30,9 @@ using namespace std;
 enum c_type {instr, data, uni};
 enum writeBack {fifo, writeThru, writeback};
 
-//dummy main memory class
-//this will be used to provide dummy variables to the highest level of cache
-class Mem{
-private:
-  int size;
-  vector <int64_t > address;
-  
-public:
-  Mem(){
-    size = 10000;
-  }
-  Mem(int inSize){
-    size = inSize;
-    populate();
-  }
-  
-  //getters
-  int getSize() {
-    return size;
-  }
-  
-  int getAddress(int i){
-    return address[i];
-  }
-  
-  
-  //setters
-  
-  //methods
-
-  //populates a CacheLvl with memory locations 
-  void populate(){
-    for(int i = 0; i < size; ++i){
-      address[i] = rand()%size+1;
-    }
-  }
-};
-
-
 
 //represents one level of cache
-//has ints, a enum, and a struct that represents a block 
+//has ints, a enum, and a struct that represents a block, a vecter 
 class CacheLevel{
   
 private:
@@ -86,10 +47,10 @@ private:
   struct block{
     int blockNum;
     int blockSize;
-   vecter < int64_t> addr;
+   vector < int64_t> addr;
   };
 
-  vecter < vecter<block> > set;
+  vector < vector<block> > set;
 
 public:
   CacheLevel(int inLevel, c_type inType){
@@ -217,7 +178,7 @@ static int64_t hexstrToInt64(string hexstr) {
 //main
 int main(int argc, char *argv[]) {
     string inName;
-    vecter <string> inReq;
+    vector <string> inReq;
   //parse arguments
   if(argc > 1){
     inName = argv[1];
