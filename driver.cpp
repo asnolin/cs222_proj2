@@ -190,8 +190,8 @@ vector<string> parse_trace(string path)
 
 int main() {
 
-	string config_path = "stuff\\config\\";
-	string trace_path = "stuff\\trace\\";
+	string config_path = "stuff/config/";
+	string trace_path = "stuff/trace/";
 	string filename;
 	cout << "Enter filename: ";
 	cin >> filename;
