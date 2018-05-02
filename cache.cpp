@@ -6,7 +6,7 @@
    to run: ./cache CONFIG_FILE_NAME
    
    TODO:
-   crawler: needs to read trace and config files in the stuff directory
+   crawler: needs to read trace files in the stuff/trace/ directory
    
    Mem: needs to provide all address aka, all requests must be hits
    
@@ -56,16 +56,18 @@ private:
   c_type type;
   int mapping; //number of blocks per set
   int id = idSeed++;
-  int blockHit;
-  int blockMisss;
+  int blockHit, blockMiss;
 
   struct block{
     int blockNum;
     int blockSize;
    vector < int64_t> addr;
   };
-
-  vector < queue<block> > set;
+  struct set{
+    vector<block> contents;
+    int64_t index;
+  }
+  vector <set> sets;
 
 public:
   CacheLevel(int inLevel, c_type inType){
@@ -110,9 +112,16 @@ public:
   
   //clears all cache fields
   void clear(){
-    //TODO
+    sets.clear();
+    blockHit = 0;
+    blockMiss = 0;
   }
 };//end CacheLevel
+
+
+
+
+
 
 
 //contains cachelevel instances. handles passing between cache levels, associativity, fifo write strat
@@ -182,9 +191,8 @@ private:
   int testNum = 0;//holds number of tests done to determine which vers to use
   
   //cache params vector
-
+  vector<cache_params> paramVec;
   //helper functions
-  
   
   vector<cache_params> get_params(string path)
   {
@@ -211,7 +219,7 @@ private:
     
     for (string segment : parse_result)
       {
-	cout << segment << "\n";
+	//cout << segment << "\n";
 	
 	istringstream ss(segment);
 	string token;
@@ -243,8 +251,8 @@ private:
 		  }
 	      }
 	    
-	    //cout << param_name << '\n';
-	    //cout << param_value << '\n';
+	    // cout << param_name << '\n';
+	    // cout << param_value << '\n';
 	    
 	    if (param_name == "alloc")
 	      {
@@ -299,10 +307,14 @@ private:
 public:
   Crawler(){
     configName = "base.config";
+    string fPath = dir+config+configName;
+    paramVec = get_params(fPath);
 
   }
   Crawler(string inName){
     configName = inName;
+    string fPath = dir+config+configName;
+    paramVec = get_params(fPath);
   }
 
 
@@ -316,7 +328,7 @@ public:
   
   //takes in a CacheLevel to assign from config
   void assign(CacheLevel &inLevel){
-    
+    //TODO
   }
 
   void incTest(){
@@ -337,14 +349,26 @@ public:
 
 
 
+
+
+
   //set statics
 int CacheLevel::idSeed = 0;
 
   
+
+
+
 //from cs222-project-02.pdf
 static int64_t hexstrToInt64(string hexstr) {
   return stol(hexstr, nullptr, 16);
 }
+
+
+
+
+
+
 
 
 
@@ -369,11 +393,14 @@ int main(int argc, char *argv[]) {
     inReq = crawl.getReqs();
     //while inReq is not empty, pop off req from inReq, and record its hits/misses
     while(inReq.size() != 0){
+      //pass a req to c, and erase from inReq
       c.test(inReq.front());
       inReq.erase(inReq.begin());
+
       //TODO
     }
     crawl.incTest();
+    c.clearAll();
   }
   return 0;
 }
