@@ -72,6 +72,9 @@ public:
   int getSize () {
     return size;
   }
+  int getID() {
+    return id;
+  }
   
   //setters
   void setLevel(int inLevel){
@@ -101,14 +104,6 @@ public:
     
   }
 };//end CacheLevel
-
-
-
-
-
-
-
-
 
 
 //contains cachelevel instances. handles passing between cache levels, associativity, and write stratagy
@@ -141,7 +136,9 @@ public:
   //returns a CacheLevel
   CacheLevel getC(int id){
     for(int i = 0; i < cVec.size(); i++){
-      cVec[i].clear();
+      if(cVec[i].getID() == id){
+	return cVec[i];
+      }
     }
   }
 
@@ -171,7 +168,7 @@ private:
   //prefix and suffix of trace files
   string t_prefix = "gcc-addrs-10K-";
   string t_suffix = ".trace";
-  string vers[] = {"a","b","c","d","e","f"};
+  string vers[6] = {"a","b","c","d","e","f"};
   int maxTests = sizeof(vers)/sizeof(vers[0]);
   int testNum = 0;//holds number of tests done to determine which vers to use
   
@@ -200,6 +197,13 @@ public:
   void incTest(){
     if(testNum < maxTests){
       testNum++;
+    }
+  }
+  bool crawlAgain(){
+    if(testNum < maxTests){
+      return true;
+    }else{
+      return false;
     }
   }
 
@@ -236,7 +240,7 @@ int main(int argc, char *argv[]) {
   Crawler crawl(inName);
 
   //while there are tests to do, pass to inReq and do tests
-  while( crawl.get_testNum() != 0){
+  while( crawl.crawlAgain()){
     inReq = crawl.getReqs();
     //while inReq is not empty, pop off req from inReq, and record its hits/misses
     while(inReq.size() != 0){
