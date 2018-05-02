@@ -23,17 +23,26 @@
 #include<fstream>
 #include<cstdlib>
 #include<vector>
+#include<queue>
 #include<cstdint>
+#include<sstream>
 using namespace std;
 
-//global enums
+
+//global enums and structs
 enum c_type {instr, data, uni};
-enum writeBack {fifo, writeThru, writeback};
 
-
-
-
-
+struct cache_params
+  {
+    bool alloc = true;
+    int block = 1;
+    int level = 1;
+    int size = 1;
+    int ways = 1;
+    string replace = "a";
+    string type = "a";
+    string write = "a";
+  };
 
 
 //represents one level of cache
@@ -56,7 +65,7 @@ private:
    vector < int64_t> addr;
   };
 
-  vector < vector<block> > set;
+  vector < queue<block> > set;
 
 public:
   CacheLevel(int inLevel, c_type inType){
@@ -95,18 +104,18 @@ public:
     //determine set 
     //determine block
     //search for target address in block
-    
+    //TODO
     return found;
   }
   
-  //clears all cache
+  //clears all cache fields
   void clear(){
-    
+    //TODO
   }
 };//end CacheLevel
 
 
-//contains cachelevel instances. handles passing between cache levels, associativity, and write stratagy
+//contains cachelevel instances. handles passing between cache levels, associativity, fifo write strat
 class Cache{
 private:
   vector <CacheLevel> cVec;
@@ -144,7 +153,7 @@ public:
 
   //
   void test(string req){
-
+    //TODO
   }
 };//end Cache
 
@@ -172,9 +181,125 @@ private:
   int maxTests = sizeof(vers)/sizeof(vers[0]);
   int testNum = 0;//holds number of tests done to determine which vers to use
   
+  //cache params vector
+
+  //helper functions
+  
+  
+  vector<cache_params> get_params(string path)
+  {
+    
+    vector<cache_params> params_vect;
+    cache_params params;
+    
+    ifstream f_in;
+    f_in.open(path);
+    
+    string line;
+    vector<string> parse_result;
+    
+    while (f_in)
+      {
+	getline(f_in, line);
+	if (line[0] != '#')
+	  {
+	    parse_result.push_back(line);
+	  }
+      }
+    
+    f_in.close();
+    
+    for (string segment : parse_result)
+      {
+	cout << segment << "\n";
+	
+	istringstream ss(segment);
+	string token;
+	
+	while (getline(ss, token, ','))
+	  {
+	    //cout << token << '\n';
+	    string param_name = "";
+	    string param_value = "";
+	    bool on_name = true;
+	    for (int i = 0; i < token.length(); ++i)
+	      {
+		if (token[i] == ':')
+		  {
+		    on_name = false;
+		  }
+		
+		if (on_name)
+		  {
+		    param_name += token[i];
+		  }
+		
+		else
+		  {
+		    if (token[i] != ':')
+		      {
+			param_value += token[i];
+		      }
+		  }
+	      }
+	    
+	    //cout << param_name << '\n';
+	    //cout << param_value << '\n';
+	    
+	    if (param_name == "alloc")
+	      {
+		if (param_value == "true")
+		  {
+		    params.alloc = true;
+		  }
+	      }
+	    
+	    if (param_name == "block")
+	      {
+		params.block = stoi(param_value);
+	      }
+	    
+	    if (param_name == "level")
+	      {
+		params.level = stoi(param_value);
+	      }
+	    
+	    if (param_name == "replace")
+	      {
+		params.replace = param_value;
+	      }
+	    
+	    if (param_name == "size")
+	      {
+		params.size = stoi(param_value);
+	      }
+	    
+	    if (param_name == "type")
+	      {
+		params.type = param_value;
+	      }
+	    
+	    if (param_name == "ways")
+	      {
+		params.ways = stoi(param_value);
+	      }
+	    
+	    if (param_name == "write")
+	      {
+		params.write = param_value;
+	      }
+	  }
+
+	params_vect.push_back(params);
+      }
+	
+    return params_vect;
+  }
+
 public:
   Crawler(){
     configName = "base.config";
+
   }
   Crawler(string inName){
     configName = inName;
@@ -244,8 +369,9 @@ int main(int argc, char *argv[]) {
     inReq = crawl.getReqs();
     //while inReq is not empty, pop off req from inReq, and record its hits/misses
     while(inReq.size() != 0){
-      c.test(inreq.front());
-      inVec.erase(inVec.begin());
+      c.test(inReq.front());
+      inReq.erase(inReq.begin());
+      //TODO
     }
     crawl.incTest();
   }
