@@ -23,10 +23,11 @@
 #include<fstream>
 #include<cstdlib>
 #include<vector>
+#include<cstdint>
 using namespace std;
 
 //global enums
-enum c_type {instr, data, unified};
+enum c_type {instr, data, uni};
 enum writeBack {fifo, writeThru, writeback};
 
 //dummy main memory class
@@ -34,7 +35,7 @@ enum writeBack {fifo, writeThru, writeback};
 class Mem{
 private:
   int size;
-  vector <int > address;
+  vector <int64_t > address;
   
 public:
   Mem(){
@@ -58,6 +59,8 @@ public:
   //setters
   
   //methods
+
+  //populates a CacheLvl with memory locations 
   void populate(){
     for(int i = 0; i < size; ++i){
       address[i] = rand()%size+1;
@@ -68,27 +71,31 @@ public:
 
 
 //represents one level of cache
-//has 2 ints, a enum, and a struct that represents a block
+//has ints, a enum, and a struct that represents a block 
 class CacheLevel{
   
 private:
   static int idSeed;
   int level; //size of the cache
   int size; //size of cache in bytes
+  c_type type;
   int mapping; //number of blocks per set
   int id = idSeed++;
+
+
   struct block{
     int blockNum;
     int blockSize;
-    int prefix;
-    int addr[];
+   vecter < int64_t> addr;
   };
-  
+
+  vecter < vecter<block> > set;
+
 public:
-  CacheLevel(int inLevel, int inSize, int inMapping, int inBlockSize){
+  CacheLevel(int inLevel, c_type inType){
     level = inLevel;
-    size = inSize;
-    mapping = inMapping;
+    type = inType;
+
   }
   
   //getters
@@ -137,7 +144,11 @@ class Cache{
   int numHits;
   int numMiss;
   //constructors
-  
+  Cache(){
+    cVec.push_back(CacheLevel(1,instr));
+    cVec.push_back(CacheLevel(1,data));
+    cVec.push_back(CacheLevel(2, uni));
+  }
   //methods
   
   //clears all cache levels, in prep for another test
@@ -153,11 +164,13 @@ class Cache{
   
   //returns a CacheLevel
   CacheLevel getC(int id){
-    
+    for(int i = 0; i < cVec.size(); i++){
+
+    }
   }
 };//end Cache
-  
-  
+
+
   //crawls through directory to read config and trace files
 class Crawler{
   
@@ -193,9 +206,18 @@ public:
 int Crawler::testNum = 0;
 int CacheLevel::idSeed = 0;
 
+  
+//from
+static int64_t hexstrToInt64(string hexstr) {
+  return stol(hexstr, nullptr, 16);
+}
+
+
+
 //main
 int main(int argc, char *argv[]) {
-  string inName;
+    string inName;
+    vecter <string> inReq;
   //parse arguments
   if(argc > 1){
     inName = argv[1];
@@ -204,8 +226,9 @@ int main(int argc, char *argv[]) {
   }
   
   //init 
+
   Crawler crawl(inName);
-  
+  inReq = crawl.getReqed();
   return 0;
 }
 
