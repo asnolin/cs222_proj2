@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cstdint>
 
 using namespace std;
 
@@ -163,24 +164,51 @@ void print_params(cache_params params)
 	cout << "write: " << params.write << "\n";
 }
 
+int64_t hexstrToInt64(std::string hexstr) {
+	return std::stol(hexstr, nullptr, 16);
+}
 
+vector<string> parse_trace(string path)
+{
+	vector<string> accesses;
+	
+	ifstream f_in;
+	f_in.open(path);
+
+	string line;
+
+	while (f_in)
+	{
+		getline(f_in, line);
+		accesses.push_back(line);
+	}
+
+	f_in.close();
+
+	return accesses;
+}
 
 int main() {
 
-	string path = "C:\\Users\\imust\\Desktop\\cache_stuff\\stuff\\config\\";
+	string config_path = "C:\\Users\\imust\\Desktop\\cache_stuff\\stuff\\config\\";
+	string trace_path = "C:\\Users\\imust\\Desktop\\cache_stuff\\stuff\\trace\\";
 	string filename;
 	cout << "Enter filename: ";
 	cin >> filename;
-	path += filename;
+	trace_path += filename;
 
 	//print_contents(path);
-	vector<cache_params> params = get_params(path);
+	//vector<cache_params> params = get_params(path);
 	//print_params(params);
 
+	/*
 	for (int i = 0; i < 3; ++i)
 	{
 		print_params(params[i]);
 	}
+	*/
+
+	vector<string> accesses = parse_trace(trace_path);
 
 	return 0;
 }
