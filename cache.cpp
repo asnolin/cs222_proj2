@@ -134,6 +134,8 @@ public:
 class Cache{
   vector <CacheLevel> cVec;
   int numLevels;
+  int numHits;
+  int numMiss;
   //constructors
   
   //methods
