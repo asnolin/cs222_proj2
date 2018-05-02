@@ -23,72 +23,46 @@
 #include<fstream>
 #include<cstdlib>
 #include<vector>
+#include<cstdint>
 using namespace std;
 
 //global enums
-enum c_type {instr, data, unified};
+enum c_type {instr, data, uni};
 enum writeBack {fifo, writeThru, writeback};
 
-//dummy main memory class
-//this will be used to provide dummy variables to the highest level of cache
-class Mem{
-private:
-  int size;
-  vector <int > address;
-  
-public:
-  Mem(){
-    size = 10000;
-  }
-  Mem(int inSize){
-    size = inSize;
-    populate();
-  }
-  
-  //getters
-  int getSize() {
-    return size;
-  }
-  
-  int getAddress(int i){
-    return address[i];
-  }
-  
-  
-  //setters
-  
-  //methods
-  void populate(){
-    for(int i = 0; i < size; ++i){
-      address[i] = rand()%size+1;
-    }
-  }
-};
+
+
+
 
 
 
 //represents one level of cache
-//has 2 ints, a enum, and a struct that represents a block
+//has ints, a enum, and a struct that represents a block, a vecter 
 class CacheLevel{
   
 private:
   static int idSeed;
   int level; //size of the cache
   int size; //size of cache in bytes
+  c_type type;
   int mapping; //number of blocks per set
   int id = idSeed++;
+  int blockHit;
+  int blockMisss;
+
   struct block{
     int blockNum;
     int blockSize;
-    int prefix;
-    int addr[];
+   vector < int64_t> addr;
   };
-  
+
+  vector < vector<block> > set;
+
 public:
-  CacheLevel(int inLevel, int inSize, int inMapping, int inBlockSize){
+  CacheLevel(int inLevel, c_type inType){
     level = inLevel;
-    size = inSize;
-    mapping = inMapping;
+    type = inType;
+
   }
   
   //getters
@@ -97,6 +71,9 @@ public:
   } 
   int getSize () {
     return size;
+  }
+  int getID() {
+    return id;
   }
   
   //setters
@@ -113,7 +90,7 @@ public:
   //methods
   
   //true if hit, otherwise false
-  bool find(long int target){
+  bool find(int64_t target){
     bool found = false;
     //determine set 
     //determine block
@@ -124,18 +101,25 @@ public:
   
   //clears all cache
   void clear(){
-    //TODO
+    
   }
 };//end CacheLevel
 
 
-
 //contains cachelevel instances. handles passing between cache levels, associativity, and write stratagy
 class Cache{
+private:
   vector <CacheLevel> cVec;
   int numLevels;
-  //constructors
-  
+  int cacheHit;
+  int cacheMiss;
+
+public:
+  Cache(){
+    cVec.push_back(CacheLevel(1,instr));
+    cVec.push_back(CacheLevel(1,data));
+    cVec.push_back(CacheLevel(2, uni));
+  }
   //methods
   
   //clears all cache levels, in prep for another test
@@ -151,25 +135,42 @@ class Cache{
   
   //returns a CacheLevel
   CacheLevel getC(int id){
-    
+    for(int i = 0; i < cVec.size(); i++){
+      if(cVec[i].getID() == id){
+	return cVec[i];
+      }
+    }
+  }
+
+  //
+  void test(string req){
+
   }
 };//end Cache
-  
-  
+
+
+
+
+
+
+
   //crawls through directory to read config and trace files
 class Crawler{
   
-  private:
-  string dir = "stuff/";
-  string config = "config/";
-  string trace = "trace/";
-  //config file 
-  string configName;
+private:
+
+  vector <string> reqs; //holds data read from config file
+  string dir = "stuff/";//head of dir
+  string config = "config/";//config dir
+  string trace = "trace/";//trace dir
+  string configName;//config filename
+
   //prefix and suffix of trace files
   string t_prefix = "gcc-addrs-10K-";
   string t_suffix = ".trace";
   string vers[6] = {"a","b","c","d","e","f"};
-  static int testNum;
+  int maxTests = sizeof(vers)/sizeof(vers[0]);
+  int testNum = 0;//holds number of tests done to determine which vers to use
   
 public:
   Crawler(){
@@ -178,22 +179,55 @@ public:
   Crawler(string inName){
     configName = inName;
   }
+
+
+  //getters
+  vector<string> getReqs(){
+    return reqs;
+  }
+
+
   //methods
   
   //takes in a CacheLevel to assign from config
   void assign(CacheLevel &inLevel){
     
   }
+
+  void incTest(){
+    if(testNum < maxTests){
+      testNum++;
+    }
+  }
+  bool crawlAgain(){
+    if(testNum < maxTests){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+
 };//end Crawler
 
 
+
   //set statics
-int Crawler::testNum = 0;
 int CacheLevel::idSeed = 0;
+
+  
+//from cs222-project-02.pdf
+static int64_t hexstrToInt64(string hexstr) {
+  return stol(hexstr, nullptr, 16);
+}
+
+
 
 //main
 int main(int argc, char *argv[]) {
-  string inName;
+    string inName;
+    vector <string> inReq;
+
   //parse arguments
   if(argc > 1){
     inName = argv[1];
@@ -201,9 +235,20 @@ int main(int argc, char *argv[]) {
     inName = "base.config";
   }
   
-  //init 
+  //init crawler, cache
+  Cache c;
   Crawler crawl(inName);
-  
+
+  //while there are tests to do, pass to inReq and do tests
+  while( crawl.crawlAgain()){
+    inReq = crawl.getReqs();
+    //while inReq is not empty, pop off req from inReq, and record its hits/misses
+    while(inReq.size() != 0){
+      c.test(inreq.front());
+      inVec.erase(inVec.begin());
+    }
+    crawl.incTest();
+  }
   return 0;
 }
 
