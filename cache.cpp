@@ -7,9 +7,7 @@
    
    TODO:
    crawler: needs to read trace files in the stuff/trace/ directory
-   
-   Mem: needs to provide all address aka, all requests must be hits
-   
+     
    cacheLevel: needs mapping type(direct 2 4 8), variable size, variable block size, determine hit or miss, determine index, needs clear function
    
    cache: needs to record hits/misses, handle transfer of blocks,
@@ -60,6 +58,7 @@ private:
   int blSize;
   struct block{
     int blockSize;
+    int64_t tag;
     vector < int64_t> addr;
   };
   struct set{
@@ -103,12 +102,13 @@ public:
   void setBlockSize(int inBlSize){
     blSize = inBlSize;
   }
+
   //methods
   
   //get INDEX length given Cache Size, Set Associativity, Block Size
-  int getIndexLength(int size, int ways, int block){
+  int getIndexLength(){
 
-    int denom = block * ways;
+    int denom = blSize * ways;
     int result = size / denom;
     
     int indexLength = log2 (result);
@@ -175,6 +175,11 @@ public:
     blockHit = 0;
     blockMiss = 0;
   }
+  block accessBlock(int64_t address){
+    index = getIndex(getIndexLength(), OFFSET, address);
+  }
+
+
 };//end CacheLevel
 
 
@@ -209,7 +214,16 @@ public:
   void passBlock(){
     //TODO
   }
-  
+
+  //returns the l2 cache
+  CacheLevel getL2(){
+    for(int i = 0; i<cVec.size(); ++i){
+      if(cVec[i].getLevel() == 2){
+	return cVec[i];
+      }
+    }
+  }
+
   //returns a CacheLevel
   CacheLevel getC(int id){
     for(int i = 0; i < cVec.size(); i++){
@@ -226,8 +240,10 @@ public:
 };//end Cache
 
 
+  //set statics
+int CacheLevel::idSeed = 0;
 
-
+  
 
 
 
@@ -422,24 +438,10 @@ public:
 
 
 
-
-
-
-  //set statics
-int CacheLevel::idSeed = 0;
-
-  
-
-
-
 //from cs222-project-02.pdf
 static int64_t hexstrToInt64(string hexstr) {
   return stol(hexstr, nullptr, 16);
 }
-
-
-
-
 
 
 //main
