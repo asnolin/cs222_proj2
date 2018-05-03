@@ -30,6 +30,10 @@ using namespace std;
 //global enums and structs
 enum c_type {instr, data, uni};
 
+/*
+contains settings to be read
+in from .config files
+*/
 struct cache_params
   {
     bool alloc = true;
@@ -159,15 +163,53 @@ public:
 
 
 
-  //true if hit, otherwise false
-  bool find(int64_t target){
-    bool found = false;
-    //determine set 
-    //determine block
-    //search for target address in block
-    //TODO
-    return found;
-  }
+//true if hit, otherwise false
+bool find(int64_t target) {
+	bool found = false;
+	vector<block> set;
+	//determine set by index of address
+	int64_t index = getIndex(target);
+	for (int i = 0; i < sets.size(); ++i)
+	{
+		if (sets[i].index == index)
+		{
+			set = sets[i];
+		}
+	}
+	
+	//search for block by tag of address
+	int64_t tag = getTag(target);
+	for (int i = 0; i < set.contents.size(); ++i)
+	{
+		if set.contents[i].tag == tag
+		{
+			//search for address in block
+			if found_in_block(target, blok)
+			{
+				found = true;
+			}
+		}
+		else
+		{
+			found = false;
+		}
+	}
+	
+	return found;
+}
+
+//returns true if target address is in specified block
+bool found_in_block(int64_t target, block blok)
+{
+	for (int i = 0; i < blok.addr.size(); ++i)
+	{
+		if (blok.addr[i] == target)
+		{
+			return true;
+		}
+	}
+	return false;
+}
   
   //clears all cache fields
   void clear(){
@@ -269,6 +311,8 @@ private:
   vector<cache_params> paramVec;
   //helper functions
   
+  //reads .config file, assigns parameter values to
+  //cache_params struct
   vector<cache_params> get_params(string path)
   {
     
@@ -284,6 +328,7 @@ private:
     while (f_in)
       {
 	getline(f_in, line);
+	//ignore comments at top of file
 	if (line[0] != '#')
 	  {
 	    parse_result.push_back(line);
@@ -299,13 +344,15 @@ private:
 	istringstream ss(segment);
 	string token;
 	
+	//separate lines by comma
 	while (getline(ss, token, ','))
 	  {
 	    //cout << token << '\n';
 	    string param_name = "";
 	    string param_value = "";
 	    bool on_name = true;
-	    for (int i = 0; i < token.length(); ++i)
+	    //separate segments by colon to break values from parameter names
+		for (int i = 0; i < token.length(); ++i)
 	      {
 		if (token[i] == ':')
 		  {
@@ -329,7 +376,8 @@ private:
 	    // cout << param_name << '\n';
 	    // cout << param_value << '\n';
 	    
-	    if (param_name == "alloc")
+		//set values in cache_params struct
+		if (param_name == "alloc")
 	      {
 		if (param_value == "true")
 		  {
@@ -382,7 +430,9 @@ private:
 	params_vect.push_back(params);
       }
 	
-    return params_vect;
+    //return vector of cache_params struct,
+	//one element per cache level
+	return params_vect;
   }
 
 public:
