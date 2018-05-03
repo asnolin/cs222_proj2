@@ -23,7 +23,6 @@
 #include<fstream>
 #include<cstdlib>
 #include<vector>
-#include<queue>
 #include<cstdint>
 #include<sstream>
 using namespace std;
@@ -40,7 +39,7 @@ struct cache_params
     int size = 1;
     int ways = 1;
     string replace = "a";
-    string type = "a";
+    c_type type = uni;
     string write = "a";
   };
 
@@ -59,14 +58,14 @@ private:
   int blockHit, blockMiss;
 
   struct block{
-    int blockNum;
     int blockSize;
-   vector < int64_t> addr;
+    vector < int64_t> addr;
   };
   struct set{
     vector<block> contents;
     int64_t index;
-  }
+  };
+
   vector <set> sets;
 
 public:
@@ -85,6 +84,9 @@ public:
   }
   int getID() {
     return id;
+  }
+  c_type getType(){
+    return type;
   }
   
   //setters
@@ -284,7 +286,13 @@ private:
 	    
 	    if (param_name == "type")
 	      {
-		params.type = param_value;
+		if(param_value == "data"){
+		  params.type = data;
+		}else if(param_value == "unified"){
+		  params.type = uni;
+		} else{
+		  params.type = uni;
+		}
 	      }
 	    
 	    if (param_name == "ways")
@@ -328,7 +336,14 @@ public:
   
   //takes in a CacheLevel to assign from config
   void assign(CacheLevel &inLevel){
-    //TODO
+    //determine which CacheLevel to modify
+    for(int i = 0; i < paramVec.size(); ++i){
+      //find the correct cache_params struct to assign to the CacheLevel
+      if(inLevel.getLevel() == paramVec[i].level && inLevel.getType() == paramVec[i].type){
+	inLevel.setSize(paramVec[i].size);
+	inLevel.setBlock(
+      }
+    }//end for loop
   }
 
   void incTest(){
