@@ -99,7 +99,9 @@ public:
   void setMapping(int inMap){
     mapping = inMap;
   }
-  
+  void setBlockSize(int inBlSize){
+    blSize = inBlSize;
+  }
   //methods
   
   //true if hit, otherwise false
@@ -163,7 +165,7 @@ public:
   }
 
   //
-  void test(string req){
+  void assignCacheLevel(string req){
     //TODO
   }
 };//end Cache
@@ -341,7 +343,7 @@ public:
       //find the correct cache_params struct to assign to the CacheLevel
       if(inLevel.getLevel() == paramVec[i].level && inLevel.getType() == paramVec[i].type){
 	inLevel.setSize(paramVec[i].size);
-	inLevel.setBlock(paramVec[i].block);
+	inLevel.setBlockSize(paramVec[i].block);
 	inLevel.setMapping(paramVec[i].ways);
       }
     }//end for loop
@@ -385,7 +387,6 @@ static int64_t hexstrToInt64(string hexstr) {
 
 
 
-
 //main
 int main(int argc, char *argv[]) {
     string inName;
@@ -408,7 +409,7 @@ int main(int argc, char *argv[]) {
     //while inReq is not empty, pop off req from inReq, and record its hits/misses
     while(inReq.size() != 0){
       //pass a req to c, and erase from inReq
-      c.test(inReq.front());
+      c.assignCacheLevel(inReq.front());
       inReq.erase(inReq.begin());
 
       //TODO
