@@ -56,7 +56,7 @@ private:
   int mapping; //number of blocks per set
   int id = idSeed++;
   int blockHit, blockMiss;
-
+  int blSize;
   struct block{
     int blockSize;
     vector < int64_t> addr;
@@ -335,13 +335,14 @@ public:
   //methods
   
   //takes in a CacheLevel to assign from config
-  void assign(CacheLevel &inLevel){
+  void assign_param(CacheLevel &inLevel){
     //determine which CacheLevel to modify
     for(int i = 0; i < paramVec.size(); ++i){
       //find the correct cache_params struct to assign to the CacheLevel
       if(inLevel.getLevel() == paramVec[i].level && inLevel.getType() == paramVec[i].type){
 	inLevel.setSize(paramVec[i].size);
-	inLevel.setBlock(
+	inLevel.setBlock(paramVec[i].block);
+	inLevel.setMapping(paramVec[i].ways);
       }
     }//end for loop
   }
@@ -385,8 +386,6 @@ static int64_t hexstrToInt64(string hexstr) {
 
 
 
-
-
 //main
 int main(int argc, char *argv[]) {
     string inName;
@@ -419,4 +418,3 @@ int main(int argc, char *argv[]) {
   }
   return 0;
 }
-
